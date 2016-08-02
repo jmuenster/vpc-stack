@@ -1,0 +1,352 @@
+{
+
+  "Description": "multi-az vpc template",
+
+  "Parameters": {
+
+    "VpcCidrBlock": {
+      "Description": "Cidr block range for the vpc i.e. 10.10.0.0/16",
+      "Type": "String",
+      "Default": "10.10.0.0/16"
+    },
+
+    "PublicSubnetACidrBlock": {
+      "Description": "Cidr block range for public subnet A i.e. 10.10.1.0/24",
+      "Type": "String",
+      "Default": "10.10.1.0/24"
+    },
+
+    "PublicSubnetBCidrBlock": {
+      "Description": "Cidr block range for public subnet B i.e. 10.10.2.0/24",
+      "Type": "String",
+      "Default": "10.10.2.0/24"
+    },
+
+    "PublicSubnetCCidrBlock": {
+      "Description": "Cidr block range for public subnet C i.e. 10.10.3.0/24",
+      "Type": "String",
+      "Default": "10.10.3.0/24"
+    },
+
+    "PrivateSubnetACidrBlock": {
+      "Description": "Cidr block range for private subnet A i.e. 10.10.4.0/24",
+      "Type": "String",
+      "Default": "10.10.4.0/24"
+    },
+
+    "PrivateSubnetBCidrBlock": {
+      "Description": "Cidr block range for private subnet B i.e. 10.10.5.0/24",
+      "Type": "String",
+      "Default": "10.10.5.0/24"
+    },
+
+    "PrivateSubnetCCidrBlock": {
+      "Description": "Cidr block range for private subnet C i.e. 10.10.6.0/24",
+      "Type": "String",
+      "Default": "10.10.6.0/24"
+    }
+
+  },
+
+
+
+  "Resources": {
+
+    "Vpc": {
+      "Type": "AWS::EC2::VPC",
+      "Properties": {
+        "CidrBlock": { "Ref": "VpcCidrBlock" },
+        "Tags": [ { "Key": "Name", "Value": { "Fn::Join": [ "-", [ { "Ref": "AWS::StackName" }, "vpc" ] ] } } ]
+      }
+    },
+
+    "InternetGateway": { 
+      "Type": "AWS::EC2::InternetGateway",
+      "Properties": {
+        "Tags": [ { "Key": "Name", "Value": { "Fn::Join": [ "-", [ { "Ref": "AWS::StackName" }, "igw" ] ] } } ]
+      }
+    },
+
+    "InternetGatewayAttachment": {
+      "Type": "AWS::EC2::VPCGatewayAttachment",
+      "Properties": {
+        "VpcId": { "Ref": "Vpc" },
+        "InternetGatewayId": { "Ref": "InternetGateway" }
+      }
+    },
+
+    "DhcpOptions": {
+      "Type": "AWS::EC2::DHCPOptions",
+      "Properties": {
+        "DomainName": "",
+        "DomainNameServers": [ "AmazonProvidedDNS" ],
+        "Tags": [ { "Key": "Name", "Value": { "Fn::Join": [ "-", [ { "Ref": "AWS::StackName" }, "dhcp-options" ] ] } } ]
+      }
+    },
+
+    "DhcpOptionsAssociation": {
+      "Type": "AWS::EC2::VPCDHCPOptionsAssociation",
+      "Properties": {
+        "VpcId": { "Ref": "Vpc" },
+        "DhcpOptionsId": { "Ref": "DhcpOptions" }
+      }
+    },
+
+
+
+    "PublicSubnetRouteTable": {
+      "Type": "AWS::EC2::RouteTable",
+      "Properties": {
+        "VpcId": { "Ref": "Vpc" },
+        "Tags": [ { "Key": "Name", "Value": { "Fn::Join": [ "-", [ { "Ref": "AWS::StackName" }, "public-subnet-route-table" ] ] } } ]
+      }
+    },
+
+    "PublicSubnetRoute": {
+      "Type": "AWS::EC2::Route",
+      "Properties": {
+        "RouteTableId": { "Ref": "PublicSubnetRouteTable" },
+        "DestinationCidrBlock": "0.0.0.0/0",
+        "GatewayId": { "Ref": "InternetGateway" }
+      }
+    },
+
+
+
+    "PublicSubnetA": {
+      "Type": "AWS::EC2::Subnet",
+      "Properties": {
+        "VpcId": { "Ref": "Vpc" },
+        "CidrBlock": { "Ref": "PublicSubnetACidrBlock" },
+        "AvailabilityZone": { "Fn::Join": [ "", [ { "Ref": "AWS::Region" }, "a" ] ] },
+        "MapPublicIpOnLaunch": "true",
+        "Tags": [ { "Key": "Name", "Value": { "Fn::Join": [ "-", [ { "Ref": "AWS::StackName" }, "public-subnet-a" ] ] } } ]
+      }
+    },
+
+    "PublicSubnetARouteTableAssoc": {
+      "Type": "AWS::EC2::SubnetRouteTableAssociation",
+      "Properties": {
+        "SubnetId": { "Ref": "PublicSubnetA" },
+        "RouteTableId": { "Ref": "PublicSubnetRouteTable" }
+      }
+    },
+
+    "PublicSubnetB": {
+      "Type": "AWS::EC2::Subnet",
+      "Properties": {
+        "VpcId": { "Ref": "Vpc" },
+        "CidrBlock": { "Ref": "PublicSubnetBCidrBlock" },
+        "AvailabilityZone": { "Fn::Join": [ "", [ { "Ref": "AWS::Region" }, "b" ] ] },
+        "MapPublicIpOnLaunch": "true",
+        "Tags": [ { "Key": "Name", "Value": { "Fn::Join": [ "-", [ { "Ref": "AWS::StackName" }, "public-subnet-b" ] ] } } ]
+      }
+    },
+
+    "PublicSubnetBRouteTableAssoc": {
+      "Type": "AWS::EC2::SubnetRouteTableAssociation",
+      "Properties": {
+        "SubnetId": { "Ref": "PublicSubnetB" },
+        "RouteTableId": { "Ref": "PublicSubnetRouteTable" }
+      }
+    },
+
+    "PublicSubnetC": {
+      "Type": "AWS::EC2::Subnet",
+      "Properties": {
+        "VpcId": { "Ref": "Vpc" },
+        "CidrBlock": { "Ref": "PublicSubnetCCidrBlock" },
+        "AvailabilityZone": { "Fn::Join": [ "", [ { "Ref": "AWS::Region" }, "c" ] ] },
+        "MapPublicIpOnLaunch": "true",
+        "Tags": [ { "Key": "Name", "Value": { "Fn::Join": [ "-", [ { "Ref": "AWS::StackName" }, "public-subnet-c" ] ] } } ]
+      }
+    },
+
+    "PublicSubnetCRouteTableAssoc": {
+      "Type": "AWS::EC2::SubnetRouteTableAssociation",
+      "Properties": {
+        "SubnetId": { "Ref": "PublicSubnetC" },
+        "RouteTableId": { "Ref": "PublicSubnetRouteTable" }
+      }
+    },
+
+
+
+
+
+
+    "NatGatewayAEip": {
+      "Type": "AWS::EC2::EIP",
+      "Properties": {
+        "Domain": "vpc"
+      }
+    },
+
+    "NatGatewayBEip": {
+      "Type": "AWS::EC2::EIP",
+      "Properties": {
+        "Domain": "vpc"
+      }
+    },
+
+    "NatGatewayCEip": {
+      "Type": "AWS::EC2::EIP",
+      "Properties": {
+        "Domain": "vpc"
+      }
+    },
+
+    "NatGatewayA": {
+      "Type": "AWS::EC2::NatGateway",
+      "Properties": {
+        "AllocationId": { "Fn::GetAtt": [ "NatGatewayAEip", "AllocationId" ] },
+        "SubnetId": { "Ref": "PublicSubnetA"}
+      }
+    },
+
+    "NatGatewayB": {
+      "Type": "AWS::EC2::NatGateway",
+      "Properties": {
+        "AllocationId": { "Fn::GetAtt": [ "NatGatewayBEip", "AllocationId" ] },
+        "SubnetId": { "Ref": "PublicSubnetB"}
+      }
+    },
+
+    "NatGatewayC": {
+      "Type": "AWS::EC2::NatGateway",
+      "Properties": {
+        "AllocationId": { "Fn::GetAtt": [ "NatGatewayCEip", "AllocationId" ] },
+        "SubnetId": { "Ref": "PublicSubnetC"}
+      }
+    },
+
+    "PrivateSubnetARouteTable": {
+      "Type": "AWS::EC2::RouteTable",
+      "Properties": {
+        "VpcId": { "Ref": "Vpc" },
+        "Tags": [ { "Key": "Name", "Value": { "Fn::Join": [ "-", [ { "Ref": "AWS::StackName" }, "private-subnet-a-route-table" ] ] } } ]
+      }
+    },
+
+    "PrivateSubnetARoute": {
+      "Type": "AWS::EC2::Route",
+      "Properties": {
+        "RouteTableId": { "Ref": "PrivateSubnetARouteTable" },
+        "DestinationCidrBlock": "0.0.0.0/0",
+        "NatGatewayId": { "Ref": "NatGatewayA" }
+      }
+    },
+
+    "PrivateSubnetBRouteTable": {
+      "Type": "AWS::EC2::RouteTable",
+      "Properties": {
+        "VpcId": { "Ref": "Vpc" },
+        "Tags": [ { "Key": "Name", "Value": { "Fn::Join": [ "-", [ { "Ref": "AWS::StackName" }, "private-subnet-b-route-table" ] ] } } ]
+      }
+    },
+
+    "PrivateSubnetBRoute": {
+      "Type": "AWS::EC2::Route",
+      "Properties": {
+        "RouteTableId": { "Ref": "PrivateSubnetBRouteTable" },
+        "DestinationCidrBlock": "0.0.0.0/0",
+        "NatGatewayId": { "Ref": "NatGatewayB" }
+      }
+    },
+
+    "PrivateSubnetCRouteTable": {
+      "Type": "AWS::EC2::RouteTable",
+      "Properties": {
+        "VpcId": { "Ref": "Vpc" },
+        "Tags": [ { "Key": "Name", "Value": { "Fn::Join": [ "-", [ { "Ref": "AWS::StackName" }, "private-subnet-c-route-table" ] ] } } ]
+      }
+    },
+
+    "PrivateSubnetCRoute": {
+      "Type": "AWS::EC2::Route",
+      "Properties": {
+        "RouteTableId": { "Ref": "PrivateSubnetCRouteTable" },
+        "DestinationCidrBlock": "0.0.0.0/0",
+        "NatGatewayId": { "Ref": "NatGatewayC" }
+      }
+    },
+
+
+
+    "PrivateSubnetA": {
+      "Type": "AWS::EC2::Subnet",
+      "Properties": {
+        "VpcId": { "Ref": "Vpc" },
+        "CidrBlock": { "Ref": "PrivateSubnetACidrBlock" },
+        "AvailabilityZone": { "Fn::Join": [ "", [ { "Ref": "AWS::Region" }, "a" ] ] },
+        "Tags": [ { "Key": "Name", "Value": { "Fn::Join": [ "-", [ { "Ref": "AWS::StackName" }, "private-subnet-a" ] ] } } ]
+      }
+    },
+
+    "PrivateSubnetARouteTableAssoc": {
+      "Type": "AWS::EC2::SubnetRouteTableAssociation",
+      "Properties": {
+        "SubnetId": { "Ref": "PrivateSubnetA" },
+        "RouteTableId": { "Ref": "PrivateSubnetARouteTable" }
+      }
+    },
+
+    "PrivateSubnetB": {
+      "Type": "AWS::EC2::Subnet",
+      "Properties": {
+        "VpcId": { "Ref": "Vpc" },
+        "CidrBlock": { "Ref": "PrivateSubnetBCidrBlock" },
+        "AvailabilityZone": { "Fn::Join": [ "", [ { "Ref": "AWS::Region" }, "b" ] ] },
+        "Tags": [ { "Key": "Name", "Value": { "Fn::Join": [ "-", [ { "Ref": "AWS::StackName" }, "private-subnet-b" ] ] } } ]
+      }
+    },
+
+    "PrivateSubnetBRouteTableAssoc": {
+      "Type": "AWS::EC2::SubnetRouteTableAssociation",
+      "Properties": {
+        "SubnetId": { "Ref": "PrivateSubnetB" },
+        "RouteTableId": { "Ref": "PrivateSubnetBRouteTable" }
+      }
+    },
+
+    "PrivateSubnetC": {
+      "Type": "AWS::EC2::Subnet",
+      "Properties": {
+        "VpcId": { "Ref": "Vpc" },
+        "CidrBlock": { "Ref": "PrivateSubnetCCidrBlock" },
+        "AvailabilityZone": { "Fn::Join": [ "", [ { "Ref": "AWS::Region" }, "c" ] ] },
+        "Tags": [ { "Key": "Name", "Value": { "Fn::Join": [ "-", [ { "Ref": "AWS::StackName" }, "private-subnet-c" ] ] } } ]
+      }
+    },
+
+    "PrivateSubnetCRouteTableAssoc": {
+      "Type": "AWS::EC2::SubnetRouteTableAssociation",
+      "Properties": {
+        "SubnetId": { "Ref": "PrivateSubnetC" },
+        "RouteTableId": { "Ref": "PrivateSubnetCRouteTable" }
+      }
+    },
+
+
+
+    "S3Endpoint": {
+      "Type": "AWS::EC2::VPCEndpoint",
+      "Properties": {
+        "PolicyDocument": {
+          "Version": "2012-10-17",
+          "Statement": [ { "Action": "*", "Effect": "Allow", "Principal": "*", "Resource": "*" } ]
+        },
+        "RouteTableIds": [
+          { "Ref": "PublicSubnetRouteTable" },
+          { "Ref": "PrivateSubnetARouteTable" },
+          { "Ref": "PrivateSubnetBRouteTable" },
+          { "Ref": "PrivateSubnetCRouteTable" }
+        ],
+        "ServiceName": { "Fn::Join": [ "", [ "com.amazonaws.", { "Ref": "AWS::Region" }, ".s3" ] ] },
+        "VpcId": { "Ref": "Vpc" }
+      }
+    }
+
+  }
+
+}
