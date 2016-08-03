@@ -1,49 +1,25 @@
 {
 
-  "Description": "multi-az vpc template",
+  "Description": "multi-az vpc template w/ 3 /28 public subnets, 3 /26 private subnets",
 
   "Parameters": {
 
-    "VpcCidrBlock": {
-      "Description": "Cidr block range for the vpc i.e. 10.10.0.0/16",
+    "FirstOctet": {
+      "Description": "First octet in the cidr block range (x.0.0.0)",
       "Type": "String",
-      "Default": "10.10.0.0/16"
+      "Default": "10"
     },
 
-    "PublicSubnetACidrBlock": {
-      "Description": "Cidr block range for public subnet A i.e. 10.10.1.0/24",
+    "SecondOctet": {
+      "Description": "Second octet in the cidr block range (0.x.0.0)",
       "Type": "String",
-      "Default": "10.10.1.0/24"
+      "Default": "10"
     },
 
-    "PublicSubnetBCidrBlock": {
-      "Description": "Cidr block range for public subnet B i.e. 10.10.2.0/24",
+    "ThirdOctet": {
+      "Description": "Third octet in the cidr block range (0.0.x.0)",
       "Type": "String",
-      "Default": "10.10.2.0/24"
-    },
-
-    "PublicSubnetCCidrBlock": {
-      "Description": "Cidr block range for public subnet C i.e. 10.10.3.0/24",
-      "Type": "String",
-      "Default": "10.10.3.0/24"
-    },
-
-    "PrivateSubnetACidrBlock": {
-      "Description": "Cidr block range for private subnet A i.e. 10.10.4.0/24",
-      "Type": "String",
-      "Default": "10.10.4.0/24"
-    },
-
-    "PrivateSubnetBCidrBlock": {
-      "Description": "Cidr block range for private subnet B i.e. 10.10.5.0/24",
-      "Type": "String",
-      "Default": "10.10.5.0/24"
-    },
-
-    "PrivateSubnetCCidrBlock": {
-      "Description": "Cidr block range for private subnet C i.e. 10.10.6.0/24",
-      "Type": "String",
-      "Default": "10.10.6.0/24"
+      "Default": "10"
     }
 
   },
@@ -55,7 +31,10 @@
     "Vpc": {
       "Type": "AWS::EC2::VPC",
       "Properties": {
-        "CidrBlock": { "Ref": "VpcCidrBlock" },
+        "CidrBlock": { "Fn::Join": [ ".", [ { "Ref": "FirstOctet" }, { "Ref": "SecondOctet" }, { "Ref": "ThirdOctet" }, "0/24" ] ] },
+        "EnableDnsSupport": "true",
+        "EnableDnsHostnames": "true",
+        "InstanceTenancy": "default",
         "Tags": [ { "Key": "Name", "Value": { "Fn::Join": [ "-", [ { "Ref": "AWS::StackName" }, "vpc" ] ] } } ]
       }
     },
@@ -117,7 +96,7 @@
       "Type": "AWS::EC2::Subnet",
       "Properties": {
         "VpcId": { "Ref": "Vpc" },
-        "CidrBlock": { "Ref": "PublicSubnetACidrBlock" },
+        "CidrBlock": { "Fn::Join": [ ".", [ { "Ref": "FirstOctet" }, { "Ref": "SecondOctet" }, { "Ref": "ThirdOctet" }, "0/28" ] ] },
         "AvailabilityZone": { "Fn::Join": [ "", [ { "Ref": "AWS::Region" }, "a" ] ] },
         "MapPublicIpOnLaunch": "true",
         "Tags": [ { "Key": "Name", "Value": { "Fn::Join": [ "-", [ { "Ref": "AWS::StackName" }, "public-subnet-a" ] ] } } ]
@@ -136,7 +115,7 @@
       "Type": "AWS::EC2::Subnet",
       "Properties": {
         "VpcId": { "Ref": "Vpc" },
-        "CidrBlock": { "Ref": "PublicSubnetBCidrBlock" },
+        "CidrBlock": { "Fn::Join": [ ".", [ { "Ref": "FirstOctet" }, { "Ref": "SecondOctet" }, { "Ref": "ThirdOctet" }, "16/28" ] ] },
         "AvailabilityZone": { "Fn::Join": [ "", [ { "Ref": "AWS::Region" }, "b" ] ] },
         "MapPublicIpOnLaunch": "true",
         "Tags": [ { "Key": "Name", "Value": { "Fn::Join": [ "-", [ { "Ref": "AWS::StackName" }, "public-subnet-b" ] ] } } ]
@@ -155,7 +134,7 @@
       "Type": "AWS::EC2::Subnet",
       "Properties": {
         "VpcId": { "Ref": "Vpc" },
-        "CidrBlock": { "Ref": "PublicSubnetCCidrBlock" },
+        "CidrBlock": { "Fn::Join": [ ".", [ { "Ref": "FirstOctet" }, { "Ref": "SecondOctet" }, { "Ref": "ThirdOctet" }, "32/28" ] ] },
         "AvailabilityZone": { "Fn::Join": [ "", [ { "Ref": "AWS::Region" }, "c" ] ] },
         "MapPublicIpOnLaunch": "true",
         "Tags": [ { "Key": "Name", "Value": { "Fn::Join": [ "-", [ { "Ref": "AWS::StackName" }, "public-subnet-c" ] ] } } ]
@@ -277,7 +256,7 @@
       "Type": "AWS::EC2::Subnet",
       "Properties": {
         "VpcId": { "Ref": "Vpc" },
-        "CidrBlock": { "Ref": "PrivateSubnetACidrBlock" },
+        "CidrBlock": { "Fn::Join": [ ".", [ { "Ref": "FirstOctet" }, { "Ref": "SecondOctet" }, { "Ref": "ThirdOctet" }, "64/26" ] ] },
         "AvailabilityZone": { "Fn::Join": [ "", [ { "Ref": "AWS::Region" }, "a" ] ] },
         "Tags": [ { "Key": "Name", "Value": { "Fn::Join": [ "-", [ { "Ref": "AWS::StackName" }, "private-subnet-a" ] ] } } ]
       }
@@ -295,7 +274,7 @@
       "Type": "AWS::EC2::Subnet",
       "Properties": {
         "VpcId": { "Ref": "Vpc" },
-        "CidrBlock": { "Ref": "PrivateSubnetBCidrBlock" },
+        "CidrBlock": { "Fn::Join": [ ".", [ { "Ref": "FirstOctet" }, { "Ref": "SecondOctet" }, { "Ref": "ThirdOctet" }, "128/26" ] ] },
         "AvailabilityZone": { "Fn::Join": [ "", [ { "Ref": "AWS::Region" }, "b" ] ] },
         "Tags": [ { "Key": "Name", "Value": { "Fn::Join": [ "-", [ { "Ref": "AWS::StackName" }, "private-subnet-b" ] ] } } ]
       }
@@ -313,7 +292,7 @@
       "Type": "AWS::EC2::Subnet",
       "Properties": {
         "VpcId": { "Ref": "Vpc" },
-        "CidrBlock": { "Ref": "PrivateSubnetCCidrBlock" },
+        "CidrBlock": { "Fn::Join": [ ".", [ { "Ref": "FirstOctet" }, { "Ref": "SecondOctet" }, { "Ref": "ThirdOctet" }, "192/26" ] ] },
         "AvailabilityZone": { "Fn::Join": [ "", [ { "Ref": "AWS::Region" }, "c" ] ] },
         "Tags": [ { "Key": "Name", "Value": { "Fn::Join": [ "-", [ { "Ref": "AWS::StackName" }, "private-subnet-c" ] ] } } ]
       }
@@ -345,6 +324,45 @@
         "ServiceName": { "Fn::Join": [ "", [ "com.amazonaws.", { "Ref": "AWS::Region" }, ".s3" ] ] },
         "VpcId": { "Ref": "Vpc" }
       }
+    }
+
+  },
+
+  "Outputs": {
+
+    "VpcId": {
+      "Description": "Id for vpc",
+      "Value": { "Ref": "Vpc" }
+    },
+
+    "PublicSubnetAId": {
+      "Description": "Id for public subnet a",
+      "Value": { "Ref": "PublicSubnetA" }
+    },
+
+    "PublicSubnetBId": {
+      "Description": "Id for public subnet b",
+      "Value": { "Ref": "PublicSubnetB" }
+    },
+
+    "PublicSubnetCId": {
+      "Description": "Id for public subnet c",
+      "Value": { "Ref": "PublicSubnetC" }
+    },
+
+    "PrivateSubnetAId": {
+      "Description": "Id for private subnet a",
+      "Value": { "Ref": "PrivateSubnetA" }
+    },
+
+    "PrivateSubnetBId": {
+      "Description": "Id for private subnet b",
+      "Value": { "Ref": "PrivateSubnetB" }
+    },
+
+    "PrivateSubnetCId": {
+      "Description": "Id for private subnet c",
+      "Value": { "Ref": "PrivateSubnetC" }
     }
 
   }
