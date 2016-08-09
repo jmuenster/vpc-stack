@@ -4,22 +4,35 @@
 
   "Parameters": {
 
-    "FirstOctet": {
+    "Octet1": {
       "Description": "First octet in the cidr block range (x.0.0.0)",
       "Type": "String",
       "Default": "10"
     },
-
-    "SecondOctet": {
+    "Octet2": {
       "Description": "Second octet in the cidr block range (0.x.0.0)",
       "Type": "String",
       "Default": "10"
     },
-
-    "ThirdOctet": {
+    "Octet3": {
       "Description": "Third octet in the cidr block range (0.0.x.0)",
       "Type": "String",
       "Default": "10"
+    },
+    "ZoneId1": {
+      "Description": "Identifier for the first availability zone ('a' usually works)",
+      "Type": "String",
+      "Default": "a"
+    },
+    "ZoneId2": {
+      "Description": "Identifier for the second availability zone ('b' usually works)",
+      "Type": "String",
+      "Default": "b"
+    },
+    "ZoneId3": {
+      "Description": "Identifier for the third availability zone ('c' usually works)",
+      "Type": "String",
+      "Default": "c"
     }
 
   },
@@ -92,59 +105,59 @@
 
 
 
-    "PublicSubnetA": {
+    "PublicSubnet1": {
       "Type": "AWS::EC2::Subnet",
       "Properties": {
         "VpcId": { "Ref": "Vpc" },
         "CidrBlock": { "Fn::Join": [ ".", [ { "Ref": "FirstOctet" }, { "Ref": "SecondOctet" }, { "Ref": "ThirdOctet" }, "0/28" ] ] },
-        "AvailabilityZone": { "Fn::Join": [ "", [ { "Ref": "AWS::Region" }, "a" ] ] },
+        "AvailabilityZone": { "Fn::Join": [ "", [ { "Ref": "AWS::Region" }, { "Ref": "ZoneId1" } ] ] },
         "MapPublicIpOnLaunch": "true",
         "Tags": [ { "Key": "Name", "Value": { "Fn::Join": [ "-", [ { "Ref": "AWS::StackName" }, "public-subnet-a" ] ] } } ]
       }
     },
 
-    "PublicSubnetARouteTableAssoc": {
+    "PublicSubnet1RouteTableAssoc": {
       "Type": "AWS::EC2::SubnetRouteTableAssociation",
       "Properties": {
-        "SubnetId": { "Ref": "PublicSubnetA" },
+        "SubnetId": { "Ref": "PublicSubnet1" },
         "RouteTableId": { "Ref": "PublicSubnetRouteTable" }
       }
     },
 
-    "PublicSubnetB": {
+    "PublicSubnet2": {
       "Type": "AWS::EC2::Subnet",
       "Properties": {
         "VpcId": { "Ref": "Vpc" },
         "CidrBlock": { "Fn::Join": [ ".", [ { "Ref": "FirstOctet" }, { "Ref": "SecondOctet" }, { "Ref": "ThirdOctet" }, "16/28" ] ] },
-        "AvailabilityZone": { "Fn::Join": [ "", [ { "Ref": "AWS::Region" }, "b" ] ] },
+        "AvailabilityZone": { "Fn::Join": [ "", [ { "Ref": "AWS::Region" }, { "Ref": "ZoneId2" } ] ] },
         "MapPublicIpOnLaunch": "true",
         "Tags": [ { "Key": "Name", "Value": { "Fn::Join": [ "-", [ { "Ref": "AWS::StackName" }, "public-subnet-b" ] ] } } ]
       }
     },
 
-    "PublicSubnetBRouteTableAssoc": {
+    "PublicSubnet2RouteTableAssoc": {
       "Type": "AWS::EC2::SubnetRouteTableAssociation",
       "Properties": {
-        "SubnetId": { "Ref": "PublicSubnetB" },
+        "SubnetId": { "Ref": "PublicSubnet2" },
         "RouteTableId": { "Ref": "PublicSubnetRouteTable" }
       }
     },
 
-    "PublicSubnetC": {
+    "PublicSubnet3": {
       "Type": "AWS::EC2::Subnet",
       "Properties": {
         "VpcId": { "Ref": "Vpc" },
         "CidrBlock": { "Fn::Join": [ ".", [ { "Ref": "FirstOctet" }, { "Ref": "SecondOctet" }, { "Ref": "ThirdOctet" }, "32/28" ] ] },
-        "AvailabilityZone": { "Fn::Join": [ "", [ { "Ref": "AWS::Region" }, "c" ] ] },
+        "AvailabilityZone": { "Fn::Join": [ "", [ { "Ref": "AWS::Region" }, { "Ref": "ZoneId3" } ] ] },
         "MapPublicIpOnLaunch": "true",
         "Tags": [ { "Key": "Name", "Value": { "Fn::Join": [ "-", [ { "Ref": "AWS::StackName" }, "public-subnet-c" ] ] } } ]
       }
     },
 
-    "PublicSubnetCRouteTableAssoc": {
+    "PublicSubnet3RouteTableAssoc": {
       "Type": "AWS::EC2::SubnetRouteTableAssociation",
       "Properties": {
-        "SubnetId": { "Ref": "PublicSubnetC" },
+        "SubnetId": { "Ref": "PublicSubnet3" },
         "RouteTableId": { "Ref": "PublicSubnetRouteTable" }
       }
     },
@@ -179,7 +192,7 @@
       "Type": "AWS::EC2::NatGateway",
       "Properties": {
         "AllocationId": { "Fn::GetAtt": [ "NatGatewayAEip", "AllocationId" ] },
-        "SubnetId": { "Ref": "PublicSubnetA"}
+        "SubnetId": { "Ref": "PublicSubnet1"}
       }
     },
 
@@ -187,7 +200,7 @@
       "Type": "AWS::EC2::NatGateway",
       "Properties": {
         "AllocationId": { "Fn::GetAtt": [ "NatGatewayBEip", "AllocationId" ] },
-        "SubnetId": { "Ref": "PublicSubnetB"}
+        "SubnetId": { "Ref": "PublicSubnet2"}
       }
     },
 
@@ -195,11 +208,11 @@
       "Type": "AWS::EC2::NatGateway",
       "Properties": {
         "AllocationId": { "Fn::GetAtt": [ "NatGatewayCEip", "AllocationId" ] },
-        "SubnetId": { "Ref": "PublicSubnetC"}
+        "SubnetId": { "Ref": "PublicSubnet3"}
       }
     },
 
-    "PrivateSubnetARouteTable": {
+    "PrivateSubnet1RouteTable": {
       "Type": "AWS::EC2::RouteTable",
       "Properties": {
         "VpcId": { "Ref": "Vpc" },
@@ -207,16 +220,16 @@
       }
     },
 
-    "PrivateSubnetARoute": {
+    "PrivateSubnet1Route": {
       "Type": "AWS::EC2::Route",
       "Properties": {
-        "RouteTableId": { "Ref": "PrivateSubnetARouteTable" },
+        "RouteTableId": { "Ref": "PrivateSubnet1RouteTable" },
         "DestinationCidrBlock": "0.0.0.0/0",
         "NatGatewayId": { "Ref": "NatGatewayA" }
       }
     },
 
-    "PrivateSubnetBRouteTable": {
+    "PrivateSubnet2RouteTable": {
       "Type": "AWS::EC2::RouteTable",
       "Properties": {
         "VpcId": { "Ref": "Vpc" },
@@ -224,16 +237,16 @@
       }
     },
 
-    "PrivateSubnetBRoute": {
+    "PrivateSubnet2Route": {
       "Type": "AWS::EC2::Route",
       "Properties": {
-        "RouteTableId": { "Ref": "PrivateSubnetBRouteTable" },
+        "RouteTableId": { "Ref": "PrivateSubnet2RouteTable" },
         "DestinationCidrBlock": "0.0.0.0/0",
         "NatGatewayId": { "Ref": "NatGatewayB" }
       }
     },
 
-    "PrivateSubnetCRouteTable": {
+    "PrivateSubnet3RouteTable": {
       "Type": "AWS::EC2::RouteTable",
       "Properties": {
         "VpcId": { "Ref": "Vpc" },
@@ -241,10 +254,10 @@
       }
     },
 
-    "PrivateSubnetCRoute": {
+    "PrivateSubnet3Route": {
       "Type": "AWS::EC2::Route",
       "Properties": {
-        "RouteTableId": { "Ref": "PrivateSubnetCRouteTable" },
+        "RouteTableId": { "Ref": "PrivateSubnet3RouteTable" },
         "DestinationCidrBlock": "0.0.0.0/0",
         "NatGatewayId": { "Ref": "NatGatewayC" }
       }
@@ -252,7 +265,7 @@
 
 
 
-    "PrivateSubnetA": {
+    "PrivateSubnet1": {
       "Type": "AWS::EC2::Subnet",
       "Properties": {
         "VpcId": { "Ref": "Vpc" },
@@ -262,15 +275,15 @@
       }
     },
 
-    "PrivateSubnetARouteTableAssoc": {
+    "PrivateSubnet1RouteTableAssoc": {
       "Type": "AWS::EC2::SubnetRouteTableAssociation",
       "Properties": {
-        "SubnetId": { "Ref": "PrivateSubnetA" },
-        "RouteTableId": { "Ref": "PrivateSubnetARouteTable" }
+        "SubnetId": { "Ref": "PrivateSubnet1" },
+        "RouteTableId": { "Ref": "PrivateSubnet1RouteTable" }
       }
     },
 
-    "PrivateSubnetB": {
+    "PrivateSubnet2": {
       "Type": "AWS::EC2::Subnet",
       "Properties": {
         "VpcId": { "Ref": "Vpc" },
@@ -280,15 +293,15 @@
       }
     },
 
-    "PrivateSubnetBRouteTableAssoc": {
+    "PrivateSubnet2RouteTableAssoc": {
       "Type": "AWS::EC2::SubnetRouteTableAssociation",
       "Properties": {
-        "SubnetId": { "Ref": "PrivateSubnetB" },
-        "RouteTableId": { "Ref": "PrivateSubnetBRouteTable" }
+        "SubnetId": { "Ref": "PrivateSubnet2" },
+        "RouteTableId": { "Ref": "PrivateSubnet2RouteTable" }
       }
     },
 
-    "PrivateSubnetC": {
+    "PrivateSubnet3": {
       "Type": "AWS::EC2::Subnet",
       "Properties": {
         "VpcId": { "Ref": "Vpc" },
@@ -298,11 +311,11 @@
       }
     },
 
-    "PrivateSubnetCRouteTableAssoc": {
+    "PrivateSubnet3RouteTableAssoc": {
       "Type": "AWS::EC2::SubnetRouteTableAssociation",
       "Properties": {
-        "SubnetId": { "Ref": "PrivateSubnetC" },
-        "RouteTableId": { "Ref": "PrivateSubnetCRouteTable" }
+        "SubnetId": { "Ref": "PrivateSubnet3" },
+        "RouteTableId": { "Ref": "PrivateSubnet3RouteTable" }
       }
     },
 
@@ -317,9 +330,9 @@
         },
         "RouteTableIds": [
           { "Ref": "PublicSubnetRouteTable" },
-          { "Ref": "PrivateSubnetARouteTable" },
-          { "Ref": "PrivateSubnetBRouteTable" },
-          { "Ref": "PrivateSubnetCRouteTable" }
+          { "Ref": "PrivateSubnet1RouteTable" },
+          { "Ref": "PrivateSubnet2RouteTable" },
+          { "Ref": "PrivateSubnet3RouteTable" }
         ],
         "ServiceName": { "Fn::Join": [ "", [ "com.amazonaws.", { "Ref": "AWS::Region" }, ".s3" ] ] },
         "VpcId": { "Ref": "Vpc" }
@@ -335,34 +348,34 @@
       "Value": { "Ref": "Vpc" }
     },
 
-    "PublicSubnetAId": {
-      "Description": "Id for public subnet a",
-      "Value": { "Ref": "PublicSubnetA" }
+    "PublicSubnet1Id": {
+      "Description": "Id for public subnet 1",
+      "Value": { "Ref": "PublicSubnet1" }
     },
 
-    "PublicSubnetBId": {
-      "Description": "Id for public subnet b",
-      "Value": { "Ref": "PublicSubnetB" }
+    "PublicSubnet2Id": {
+      "Description": "Id for public subnet 2",
+      "Value": { "Ref": "PublicSubnet2" }
     },
 
-    "PublicSubnetCId": {
-      "Description": "Id for public subnet c",
-      "Value": { "Ref": "PublicSubnetC" }
+    "PublicSubnet3Id": {
+      "Description": "Id for public subnet 3",
+      "Value": { "Ref": "PublicSubnet3" }
     },
 
-    "PrivateSubnetAId": {
-      "Description": "Id for private subnet a",
-      "Value": { "Ref": "PrivateSubnetA" }
+    "PrivateSubnet1Id": {
+      "Description": "Id for private subnet 1",
+      "Value": { "Ref": "PrivateSubnet1" }
     },
 
-    "PrivateSubnetBId": {
-      "Description": "Id for private subnet b",
-      "Value": { "Ref": "PrivateSubnetB" }
+    "PrivateSubnet2Id": {
+      "Description": "Id for private subnet 2",
+      "Value": { "Ref": "PrivateSubnet2" }
     },
 
-    "PrivateSubnetCId": {
-      "Description": "Id for private subnet c",
-      "Value": { "Ref": "PrivateSubnetC" }
+    "PrivateSubnet3Id": {
+      "Description": "Id for private subnet 3",
+      "Value": { "Ref": "PrivateSubnet3" }
     }
 
   }
