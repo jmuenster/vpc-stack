@@ -30,5 +30,5 @@ Or as a nested stack:
 A few caveats:
 
 - This doesn't work in regions with two availability zones, for obvious reasons
-- Availability zone are mapped on a [per account(https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/using-regions-availability-zones.html#concepts-regions-availability-zones)] basis, so you won't always have an a, b and c AZ name.  If this is the case, use the ZoneId parameters to override the default settings
+- Availability zone are mapped on a [per account basis](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/using-regions-availability-zones.html#concepts-regions-availability-zones), so you won't always have an a, b and c AZ name.  If this is the case, use the ZoneId parameters to override the default settings
 
