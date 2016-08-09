@@ -4,20 +4,10 @@
 
   "Parameters": {
 
-    "Octet1": {
-      "Description": "First octet in the cidr block range (x.0.0.0)",
+    "CidrBlockPrefix": {
+      "Description": "First three octets in the vpc cidr block range (x.y.z.0)",
       "Type": "String",
-      "Default": "10"
-    },
-    "Octet2": {
-      "Description": "Second octet in the cidr block range (0.x.0.0)",
-      "Type": "String",
-      "Default": "10"
-    },
-    "Octet3": {
-      "Description": "Third octet in the cidr block range (0.0.x.0)",
-      "Type": "String",
-      "Default": "10"
+      "Default": "10.10.10"
     },
     "ZoneId1": {
       "Description": "Identifier for the first availability zone ('a' usually works)",
@@ -44,7 +34,7 @@
     "Vpc": {
       "Type": "AWS::EC2::VPC",
       "Properties": {
-        "CidrBlock": { "Fn::Join": [ ".", [ { "Ref": "FirstOctet" }, { "Ref": "SecondOctet" }, { "Ref": "ThirdOctet" }, "0/24" ] ] },
+        "CidrBlock": { "Fn::Join": [ ".", [ { "Ref": "CidrBlockPrefix" }, "0/24" ] ] },
         "EnableDnsSupport": "true",
         "EnableDnsHostnames": "true",
         "InstanceTenancy": "default",
@@ -109,7 +99,7 @@
       "Type": "AWS::EC2::Subnet",
       "Properties": {
         "VpcId": { "Ref": "Vpc" },
-        "CidrBlock": { "Fn::Join": [ ".", [ { "Ref": "FirstOctet" }, { "Ref": "SecondOctet" }, { "Ref": "ThirdOctet" }, "0/28" ] ] },
+        "CidrBlock": { "Fn::Join": [ ".", [ { "Ref": "CidrBlockPrefix" }, "0/28" ] ] },
         "AvailabilityZone": { "Fn::Join": [ "", [ { "Ref": "AWS::Region" }, { "Ref": "ZoneId1" } ] ] },
         "MapPublicIpOnLaunch": "true",
         "Tags": [ { "Key": "Name", "Value": { "Fn::Join": [ "-", [ { "Ref": "AWS::StackName" }, "public-subnet-a" ] ] } } ]
@@ -128,7 +118,7 @@
       "Type": "AWS::EC2::Subnet",
       "Properties": {
         "VpcId": { "Ref": "Vpc" },
-        "CidrBlock": { "Fn::Join": [ ".", [ { "Ref": "FirstOctet" }, { "Ref": "SecondOctet" }, { "Ref": "ThirdOctet" }, "16/28" ] ] },
+        "CidrBlock": { "Fn::Join": [ ".", [ { "Ref": "CidrBlockPrefix" }, "16/28" ] ] },
         "AvailabilityZone": { "Fn::Join": [ "", [ { "Ref": "AWS::Region" }, { "Ref": "ZoneId2" } ] ] },
         "MapPublicIpOnLaunch": "true",
         "Tags": [ { "Key": "Name", "Value": { "Fn::Join": [ "-", [ { "Ref": "AWS::StackName" }, "public-subnet-b" ] ] } } ]
@@ -147,7 +137,7 @@
       "Type": "AWS::EC2::Subnet",
       "Properties": {
         "VpcId": { "Ref": "Vpc" },
-        "CidrBlock": { "Fn::Join": [ ".", [ { "Ref": "FirstOctet" }, { "Ref": "SecondOctet" }, { "Ref": "ThirdOctet" }, "32/28" ] ] },
+        "CidrBlock": { "Fn::Join": [ ".", [ { "Ref": "CidrBlockPrefix" }, "32/28" ] ] },
         "AvailabilityZone": { "Fn::Join": [ "", [ { "Ref": "AWS::Region" }, { "Ref": "ZoneId3" } ] ] },
         "MapPublicIpOnLaunch": "true",
         "Tags": [ { "Key": "Name", "Value": { "Fn::Join": [ "-", [ { "Ref": "AWS::StackName" }, "public-subnet-c" ] ] } } ]
@@ -269,7 +259,7 @@
       "Type": "AWS::EC2::Subnet",
       "Properties": {
         "VpcId": { "Ref": "Vpc" },
-        "CidrBlock": { "Fn::Join": [ ".", [ { "Ref": "FirstOctet" }, { "Ref": "SecondOctet" }, { "Ref": "ThirdOctet" }, "64/26" ] ] },
+        "CidrBlock": { "Fn::Join": [ ".", [ { "Ref": "CidrBlockPrefix" }, "64/26" ] ] },
         "AvailabilityZone": { "Fn::Join": [ "", [ { "Ref": "AWS::Region" }, "a" ] ] },
         "Tags": [ { "Key": "Name", "Value": { "Fn::Join": [ "-", [ { "Ref": "AWS::StackName" }, "private-subnet-a" ] ] } } ]
       }
@@ -287,7 +277,7 @@
       "Type": "AWS::EC2::Subnet",
       "Properties": {
         "VpcId": { "Ref": "Vpc" },
-        "CidrBlock": { "Fn::Join": [ ".", [ { "Ref": "FirstOctet" }, { "Ref": "SecondOctet" }, { "Ref": "ThirdOctet" }, "128/26" ] ] },
+        "CidrBlock": { "Fn::Join": [ ".", [ { "Ref": "CidrBlockPrefix" }, "128/26" ] ] },
         "AvailabilityZone": { "Fn::Join": [ "", [ { "Ref": "AWS::Region" }, "b" ] ] },
         "Tags": [ { "Key": "Name", "Value": { "Fn::Join": [ "-", [ { "Ref": "AWS::StackName" }, "private-subnet-b" ] ] } } ]
       }
@@ -305,7 +295,7 @@
       "Type": "AWS::EC2::Subnet",
       "Properties": {
         "VpcId": { "Ref": "Vpc" },
-        "CidrBlock": { "Fn::Join": [ ".", [ { "Ref": "FirstOctet" }, { "Ref": "SecondOctet" }, { "Ref": "ThirdOctet" }, "192/26" ] ] },
+        "CidrBlock": { "Fn::Join": [ ".", [ { "Ref": "CidrBlockPrefix" }, "192/26" ] ] },
         "AvailabilityZone": { "Fn::Join": [ "", [ { "Ref": "AWS::Region" }, "c" ] ] },
         "Tags": [ { "Key": "Name", "Value": { "Fn::Join": [ "-", [ { "Ref": "AWS::StackName" }, "private-subnet-c" ] ] } } ]
       }

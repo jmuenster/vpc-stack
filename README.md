@@ -20,14 +20,15 @@ Or as a nested stack:
 "NetworkStack": {
   "Type": "AWS::CloudFormation::Stack",
    "Properties": {
-     "Parameters": {
-       "FirstOctet": "10",
-       "SecondOctet": "10",
-       "ThirdOctet": "120"
-     },
+     "Parameters": { "CidrBlockPrefix": "10.10.10" },
      "TemplateURL": "https://s3-us-west-2.amazonaws.com/jmuenster-public-templates/vpc-stack/template.json",
      "TimeoutInMinutes": "10"
   }
 },
 ```
+
+A few caveats:
+
+- This doesn't work in regions with two availability zones, for obvious reasons
+- Availability zone are mapped on a [per account(https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/using-regions-availability-zones.html#concepts-regions-availability-zones)] basis, so you won't always have an a, b and c AZ name.  If this is the case, use the ZoneId parameters to override the default settings
 
